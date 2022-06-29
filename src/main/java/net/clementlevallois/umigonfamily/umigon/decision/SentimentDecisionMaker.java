@@ -3,7 +3,7 @@
  */
 package net.clementlevallois.umigonfamily.umigon.decision;
 
-import java.util.Queue;
+import java.util.List;
 import java.util.Set;
 import net.clementlevallois.umigon.model.Document;
 import net.clementlevallois.umigon.model.ResultOneHeuristics;
@@ -14,7 +14,7 @@ import net.clementlevallois.umigon.model.ResultOneHeuristics;
  */
 public class SentimentDecisionMaker {
 
-    Queue<ResultOneHeuristics> resultsHeuristics;
+    List<ResultOneHeuristics> resultsHeuristics;
     Document document;
     Set<String> negations;
     Set<String> moderators;

@@ -45,7 +45,7 @@ class WinnerTakesAllChecker {
         for (Map.Entry<Integer, ResultOneHeuristics> entry : indexesPos.entrySet()) {
             TypeOfToken.TypeOfTokenEnum typeOfToken = entry.getValue().getTypeOfToken();
             switch (typeOfToken) {
-                case EMOJI, HASHTAG, ONOMATOPAE, TEXTO_SPEAK:
+                case EMOJI, EMOTICON_IN_ASCII, HASHTAG, ONOMATOPAE, TEXTO_SPEAK:
                     if (entry.getValue().getIndexTokenInvestigated() > lastStrongNote) {
                         lastStrongNote = entry.getValue().getIndexTokenInvestigated();
                         finalNote = entry.getValue();
@@ -66,6 +66,7 @@ class WinnerTakesAllChecker {
                     decision.setDecisionType(Decision.DecisionType.REMOVE);
                     decision.setHeuristicsImpacted(nextHeuristics);
                     decision.setOtherHeuristicsInvolvedInDecision(finalNote);
+                    decision.setTermInvolvedInDecision(finalNote.getTokenInvestigated());
                     iteratorResultsHeuristics.remove();
                     document.getSentimentDecisions().add(decision);
                 }

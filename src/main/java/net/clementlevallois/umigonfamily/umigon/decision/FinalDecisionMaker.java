@@ -34,11 +34,11 @@ public class FinalDecisionMaker {
             while (iteratorResultsHeuristics.hasNext()) {
                 ResultOneHeuristics nextHeuristics = iteratorResultsHeuristics.next();
                 if (nextHeuristics.getCategoryEnum().equals(Category.CategoryEnum._11) || nextHeuristics.getCategoryEnum().equals(Category.CategoryEnum._111)) {
+                    iteratorResultsHeuristics.remove();
                     Decision decision = new Decision();
                     decision.setDecisionMotive(Decision.DecisionMotive.FINAL_ADJUDICATION_NEGATIVE_SENTIMENT_PREVAILS);
                     decision.setDecisionType(Decision.DecisionType.REMOVE);
                     decision.setHeuristicsImpacted(nextHeuristics);
-                    iteratorResultsHeuristics.remove();
                     document.getSentimentDecisions().add(decision);
                 }
             }

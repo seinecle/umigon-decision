@@ -65,6 +65,7 @@ public class WhenTextContainsPositiveNegativeAndNegation {
                 // not sure this is a good rule!!
                 // doesn't work for "The chocolate is excellent, it isn't bad"
                 if ((indexPos < indexNegation & indexNeg > indexNegation)) {
+                    document.getResultsOfHeuristics().remove(indexesPos.get(indexPos));
                     decision = new Decision();
                     decision.setHeuristicsImpacted(indexesPos.get(indexPos));
                     decision.setDecisionType(Decision.DecisionType.REMOVE);
@@ -74,6 +75,7 @@ public class WhenTextContainsPositiveNegativeAndNegation {
                     document.getSentimentDecisions().add(decision);
                     break;
                 } else if ((indexPos > indexNegation & indexNeg < indexNegation)) {
+                    document.getResultsOfHeuristics().remove(indexesNeg.get(indexNeg));
                     decision = new Decision();
                     decision.setHeuristicsImpacted(indexesNeg.get(indexNeg));
                     decision.setDecisionType(Decision.DecisionType.REMOVE);
@@ -84,6 +86,8 @@ public class WhenTextContainsPositiveNegativeAndNegation {
                     break;
                 }
                 if ((indexNegation < indexPos & indexNegation < indexNeg & indexPos < indexNeg)) {
+                    document.getResultsOfHeuristics().remove(indexesPos.get(indexPos));
+                    document.getResultsOfHeuristics().remove(indexesNeg.get(indexNeg));
                     decision = new Decision();
                     decision.setHeuristicsImpacted(indexesPos.get(indexPos));
                     decision.setDecisionType(Decision.DecisionType.REMOVE);
@@ -93,6 +97,8 @@ public class WhenTextContainsPositiveNegativeAndNegation {
                     document.getSentimentDecisions().add(decision);
                     break;
                 } else if ((indexNegation < indexPos & indexNegation < indexNeg & indexNeg < indexPos)) {
+                    document.getResultsOfHeuristics().remove(indexesPos.get(indexPos));
+                    document.getResultsOfHeuristics().remove(indexesNeg.get(indexNeg));
                     decision = new Decision();
                     decision.setHeuristicsImpacted(indexesNeg.get(indexNeg));
                     decision.setDecisionType(Decision.DecisionType.REMOVE);

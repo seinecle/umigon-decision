@@ -3,9 +3,11 @@
  */
 package net.clementlevallois.umigonfamily.umigon.decision;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.clementlevallois.umigon.model.Category;
@@ -33,7 +35,7 @@ public class WhenTextContainsAModerator {
         Map<Integer, ResultOneHeuristics> indexesPos = document.getAllHeuristicsResultsForOneCategory(Category.CategoryEnum._11);
         Map<Integer, ResultOneHeuristics> indexesNeg = document.getAllHeuristicsResultsForOneCategory(Category.CategoryEnum._12);
 
-        if (indexesPos.isEmpty() || indexesNeg.isEmpty()) {
+        if (indexesPos.isEmpty() & indexesNeg.isEmpty()) {
             return document;
         }
         int indexModerator;
@@ -70,8 +72,12 @@ public class WhenTextContainsAModerator {
         Decision decision;
         for (String moderator : moderators) {
             if (termsInText.contains(moderator)) {
+//                if (moderator.equals("but")){
+//                    System.out.println("stop bc moderator is but");
+//                }
                 indexModerator = document.getTextStripped().toLowerCase().indexOf(moderator);
                 if ((indexPosFirst < indexModerator)) {
+                    document.getResultsOfHeuristics().remove(indexesPos.get(indexPosFirst));
                     decision = new Decision();
                     decision.setDecisionMotive(Decision.DecisionMotive.POSITIVE_TERM_THEN_MODERATOR);
                     decision.setHeuristicsImpacted(indexesPos.get(indexPosFirst));
@@ -82,6 +88,7 @@ public class WhenTextContainsAModerator {
                     break;
                 }
                 if ((indexNegFirst < indexModerator)) {
+                    document.getResultsOfHeuristics().remove(indexesNeg.get(indexNegFirst));
                     decision = new Decision();
                     decision.setDecisionMotive(Decision.DecisionMotive.NEGATIVE_TERM_THEN_MODERATOR);
                     decision.setHeuristicsImpacted(indexesNeg.get(indexNegFirst));
@@ -92,9 +99,10 @@ public class WhenTextContainsAModerator {
                     break;
                 }
                 if ((indexPosFirst > indexModerator & indexNegFirst < indexModerator)) {
+                    document.getResultsOfHeuristics().remove(indexesNeg.get(indexNegFirst));
                     decision = new Decision();
                     decision.setDecisionMotive(Decision.DecisionMotive.NEGATIVE_TERM_THEN_MODERATOR);
-                    decision.setHeuristicsImpacted(indexesPos.get(indexNegFirst));
+                    decision.setHeuristicsImpacted(indexesNeg.get(indexNegFirst));
                     decision.setDecisionType(Decision.DecisionType.REMOVE);
                     decision.setTermInvolvedInDecision(moderator);
                     decision.setIndexOfTermInvolvedInDecision(indexModerator);
@@ -102,6 +110,8 @@ public class WhenTextContainsAModerator {
                     break;
                 }
                 if (indexNegFirst < indexModerator & indexNegLast < indexModerator) {
+                    document.getResultsOfHeuristics().remove(indexesNeg.get(indexNegFirst));
+                    document.getResultsOfHeuristics().remove(indexesNeg.get(indexNegLast));
                     decision = new Decision();
                     decision.setDecisionMotive(Decision.DecisionMotive.TWO_NEGATIVE_TERMS_THEN_MODERATOR);
                     decision.setHeuristicsImpacted(indexesPos.get(indexNegFirst));
@@ -113,6 +123,8 @@ public class WhenTextContainsAModerator {
                     break;
                 }
                 if (indexPosFirst < indexModerator & indexPosLast < indexModerator) {
+                    document.getResultsOfHeuristics().remove(indexesPos.get(indexPosFirst));
+                    document.getResultsOfHeuristics().remove(indexesPos.get(indexPosLast));
                     decision = new Decision();
                     decision.setDecisionMotive(Decision.DecisionMotive.TWO_POSITIVE_TERMS_THEN_MODERATOR);
                     decision.setHeuristicsImpacted(indexesPos.get(indexPosFirst));
