@@ -55,6 +55,19 @@ class WinnerTakesAllChecker {
             }
         }
 
+        for (Map.Entry<Integer, ResultOneHeuristics> entry : indexesNeg.entrySet()) {
+            TypeOfToken.TypeOfTokenEnum typeOfToken = entry.getValue().getTypeOfToken();
+            switch (typeOfToken) {
+                case EMOJI, EMOTICON_IN_ASCII, HASHTAG, ONOMATOPAE, TEXTO_SPEAK:
+                    if (entry.getValue().getIndexTokenInvestigated() > lastStrongNote) {
+                        lastStrongNote = entry.getValue().getIndexTokenInvestigated();
+                        finalNote = entry.getValue();
+                    }
+                    ;
+                    break;
+            }
+        }
+
         // if such a "winner takes all" emotion is detected, all the others should be deleted
         if (finalNote != null) {
             Iterator<ResultOneHeuristics> iteratorResultsHeuristics = document.getResultsOfHeuristics().iterator();
