@@ -3,15 +3,13 @@
  */
 package net.clementlevallois.umigonfamily.umigon.decision;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import net.clementlevallois.umigon.model.Category;
 import net.clementlevallois.umigon.model.Decision;
 import net.clementlevallois.umigon.model.Document;
+import net.clementlevallois.umigon.model.NGram;
 import net.clementlevallois.umigon.model.ResultOneHeuristics;
 
 /**
@@ -29,27 +27,35 @@ public class WhenTextContainsAModerator {
     }
 
     public Document containsAModerator() {
-        Map<Integer, ResultOneHeuristics> indexesPos = new HashMap();
-        indexesPos.putAll(document.getAllHeuristicsResultsForOneCategory(Category.CategoryEnum._11));
-        Map<Integer, ResultOneHeuristics> indexesNeg = new HashMap();
-        indexesNeg.putAll(document.getAllHeuristicsResultsForOneCategory(Category.CategoryEnum._12));
+        List<NGram> ngrams = document.getNgrams();
+        NGram moderator = null;
+
+        for (NGram ngram : ngrams) {
+            if (moderators.contains(ngram.getCleanedNgram().toLowerCase())) {
+                moderator = ngram;
+            }
+        }
+        if (moderator == null) {
+            return document;
+        }
+
+        Set<ResultOneHeuristics> indexesPos = document.getAllHeuristicsResultsForOneCategory(Category.CategoryEnum._11);
+        Set<ResultOneHeuristics> indexesNeg = document.getAllHeuristicsResultsForOneCategory(Category.CategoryEnum._12);
 
         if (indexesPos.isEmpty() & indexesNeg.isEmpty()) {
             return document;
         }
-        int indexModerator;
+        int indexCardinalModerator;
         int index = Integer.MAX_VALUE;
         int indexNegFirst = Integer.MAX_VALUE;
         int indexPosLast = -1;
         int indexNegLast = -1;
 
-        Set<String> termsInText = new HashSet();
-        termsInText.addAll(Arrays.asList(document.getTextStripped().split(" ")));
-        Iterator<Integer> iterator;
+        Iterator<ResultOneHeuristics> iterator;
 
-        iterator = indexesPos.keySet().iterator();
+        iterator = indexesPos.iterator();
         while (iterator.hasNext()) {
-            Integer currIndex = iterator.next();
+            Integer currIndex = iterator.next().getTextFragmentInvestigated().getIndexCardinal();
             if (currIndex < index) {
                 index = currIndex;
             }
@@ -57,9 +63,9 @@ public class WhenTextContainsAModerator {
                 indexPosLast = currIndex;
             }
         }
-        iterator = indexesNeg.keySet().iterator();
+        iterator = indexesNeg.iterator();
         while (iterator.hasNext()) {
-            Integer currIndex = iterator.next();
+            Integer currIndex = iterator.next().getTextFragmentInvestigated().getIndexCardinal();
             if (currIndex < indexNegFirst) {
                 indexNegFirst = currIndex;
             }
@@ -69,44 +75,32 @@ public class WhenTextContainsAModerator {
         }
 
         Decision decision;
-        for (String moderator : moderators) {
-            if (termsInText.contains(moderator)) {
-//                if (moderator.equals("but")){
-//                    System.out.println("stop bc moderator is but");
-//                }
-                indexModerator = document.getTextStripped().toLowerCase().indexOf(moderator);
-                Set<Map.Entry<Integer, ResultOneHeuristics>> entrySetPositiveHeuristics = indexesPos.entrySet();
-                for (Map.Entry<Integer, ResultOneHeuristics> entry : entrySetPositiveHeuristics) {
-                    int indexLoop = entry.getKey();
-                    if ((indexLoop < indexModerator)) {
-                        document.getResultsOfHeuristics().remove(indexesPos.get(indexLoop));
-                        decision = new Decision();
-                        decision.setDecisionMotive(Decision.DecisionMotive.POSITIVE_TERM_THEN_MODERATOR);
-                        decision.setHeuristicsImpacted(indexesPos.get(indexLoop));
-                        decision.setDecisionType(Decision.DecisionType.REMOVE);
-                        decision.setTermInvolvedInDecision(moderator);
-                        decision.setIndexOfTermInvolvedInDecision(indexModerator);
-                        document.getSentimentDecisions().add(decision);
-                    }
-                }
+        indexCardinalModerator = moderator.getIndexCardinal();
+        for (ResultOneHeuristics entry : indexesPos) {
+            int indexLoop = entry.getTextFragmentInvestigated().getIndexCardinal();
+            if ((indexLoop < indexCardinalModerator)) {
+                document.getResultsOfHeuristics().remove(entry);
+                decision = new Decision();
+                decision.setDecisionMotive(Decision.DecisionMotive.POSITIVE_TERM_THEN_MODERATOR);
+                decision.setHeuristicsImpacted(entry);
+                decision.setDecisionType(Decision.DecisionType.REMOVE);
+                decision.setTextFragmentInvolvedInDecision(moderator);
+                document.getSentimentDecisions().add(decision);
+            }
+        }
 
-                Set<Map.Entry<Integer, ResultOneHeuristics>> entrySetNegativeHeuristics = indexesNeg.entrySet();
-                for (Map.Entry<Integer, ResultOneHeuristics> entry : entrySetNegativeHeuristics) {
-                    int indexLoop = entry.getKey();
-                    if ((indexLoop < indexModerator)) {
-                        document.getResultsOfHeuristics().remove(indexesNeg.get(indexLoop));
-                        decision = new Decision();
-                        decision.setDecisionMotive(Decision.DecisionMotive.NEGATIVE_TERM_THEN_MODERATOR);
-                        decision.setHeuristicsImpacted(indexesNeg.get(indexLoop));
-                        decision.setDecisionType(Decision.DecisionType.REMOVE);
-                        decision.setTermInvolvedInDecision(moderator);
-                        decision.setIndexOfTermInvolvedInDecision(indexModerator);
-                        document.getSentimentDecisions().add(decision);
-                    }
-                }
+        for (ResultOneHeuristics entry : indexesNeg) {
+            int indexLoop = entry.getTextFragmentInvestigated().getIndexCardinal();
+            if ((indexLoop < indexCardinalModerator)) {
+                document.getResultsOfHeuristics().remove(entry);
+                decision = new Decision();
+                decision.setDecisionMotive(Decision.DecisionMotive.NEGATIVE_TERM_THEN_MODERATOR);
+                decision.setHeuristicsImpacted(entry);
+                decision.setDecisionType(Decision.DecisionType.REMOVE);
+                decision.setTextFragmentInvolvedInDecision(moderator);
+                document.getSentimentDecisions().add(decision);
             }
         }
         return document;
     }
-
 }
