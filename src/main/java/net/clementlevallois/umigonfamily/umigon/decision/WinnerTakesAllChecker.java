@@ -49,7 +49,7 @@ class WinnerTakesAllChecker {
 
         // detecting if we have such a "winner takes all" emotion in the text
         for (ResultOneHeuristics entry : posAndNegHeuristics) {
-            TypeOfTextFragment.TypeOfTextFragmentEnum typeOfToken = entry.getTextFragmentInvestigated().getTypeOfTextFragment();
+            TypeOfTextFragment.TypeOfTextFragmentEnum typeOfToken = entry.getTextFragmentInvestigated().getTypeOfTextFragmentEnum();
             int currCardinalIndex = entry.getTextFragmentInvestigated().getIndexCardinal();
             switch (typeOfToken) {
                 case EMOJI, EMOTICON_IN_ASCII, HASHTAG, ONOMATOPAE, TEXTO_SPEAK:
