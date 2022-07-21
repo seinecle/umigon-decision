@@ -11,6 +11,10 @@ import net.clementlevallois.umigon.model.Decision;
 import net.clementlevallois.umigon.model.Document;
 import net.clementlevallois.umigon.model.ResultOneHeuristics;
 import net.clementlevallois.umigon.model.TypeOfTextFragment;
+import static net.clementlevallois.umigon.model.TypeOfTextFragment.TypeOfTextFragmentEnum.EMOJI;
+import static net.clementlevallois.umigon.model.TypeOfTextFragment.TypeOfTextFragmentEnum.EMOTICON_IN_ASCII;
+import static net.clementlevallois.umigon.model.TypeOfTextFragment.TypeOfTextFragmentEnum.HASHTAG;
+import static net.clementlevallois.umigon.model.TypeOfTextFragment.TypeOfTextFragmentEnum.TEXTO_SPEAK;
 
 /**
  *
@@ -39,26 +43,23 @@ class WinnerTakesAllChecker {
 
         Set<ResultOneHeuristics> indexesPos = document.getAllHeuristicsResultsForOneCategory(Category.CategoryEnum._11);
         Set<ResultOneHeuristics> indexesNeg = document.getAllHeuristicsResultsForOneCategory(Category.CategoryEnum._12);
-        
+
         Set<ResultOneHeuristics> posAndNegHeuristics = new HashSet();
         posAndNegHeuristics.addAll(indexesPos);
         posAndNegHeuristics.addAll(indexesNeg);
 
-        int lastStrongNote = 0;
+        int lastStrongNote = -1;
         ResultOneHeuristics finalNote = null;
 
         // detecting if we have such a "winner takes all" emotion in the text
         for (ResultOneHeuristics entry : posAndNegHeuristics) {
             TypeOfTextFragment.TypeOfTextFragmentEnum typeOfToken = entry.getTextFragmentInvestigated().getTypeOfTextFragmentEnum();
             int currCardinalIndex = entry.getTextFragmentInvestigated().getIndexCardinal();
-            switch (typeOfToken) {
-                case EMOJI, EMOTICON_IN_ASCII, HASHTAG, ONOMATOPAE, TEXTO_SPEAK:
-                    if (currCardinalIndex > lastStrongNote) {
-                        lastStrongNote = currCardinalIndex;
-                        finalNote = entry;
-                    }
-                    ;
-                    break;
+            if (typeOfToken.equals(EMOJI) || typeOfToken.equals(EMOTICON_IN_ASCII) || typeOfToken.equals(HASHTAG) || typeOfToken.equals(TEXTO_SPEAK)) {
+                if (currCardinalIndex > lastStrongNote) {
+                    lastStrongNote = currCardinalIndex;
+                    finalNote = entry;
+                }
             }
         }
 
